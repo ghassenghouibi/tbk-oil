@@ -1,11 +1,23 @@
 export default function Hero() {
   return (
     <section className="hero" id="accueil">
-      <div className="hero-bg" role="img" aria-label="Rangées d'oliviers du domaine sous le ciel de Zaghouan"></div>
+      <video
+        className="hero-bg"
+        poster="/img/verger-aujourdhui.jpg"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+      >
+        <source src="/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
+        <source src="/video/hero.mp4" type="video/mp4" />
+      </video>
       <div className="wrap">
         <div className="ar" lang="ar">تبيكة</div>
         <h1>Thibica</h1>
-        <p className="tag">Huile d'olive extra vierge biologique, née sur la terre de notre famille, à quelques kilomètres de Thuburbo Majus.</p>
+        <p className="tag">Huile d'olive extra vierge biologique, née sur la terre de notre famille, à quelques kilomètres de Thuburbo Majus, en Tunisie.</p>
         <div className="hero-row">
           <ul className="facts">
             <li>Agriculture biologique</li>

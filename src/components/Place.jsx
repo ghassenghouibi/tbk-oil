@@ -1,5 +1,5 @@
 const ITEMS = [
-  ['I', 'Un site antique', 'Thibica est un site archéologique d\'époque romaine, à quelques kilomètres de Thuburbo Majus, l\'une des plus remarquables cités romaines d\'Afrique du Nord. Sur les colonnes de ses temples, des branches d\'olivier sont sculptées dans la pierre.'],
+  ['I', 'Un site antique', 'Thibica est un site archéologique d\'époque romaine, à quelques kilomètres de Thuburbo Majus, en Tunisie, l\'une des plus remarquables cités romaines d\'Afrique du Nord. Sur les colonnes de ses temples, des branches d\'olivier sont sculptées dans la pierre.'],
   ['II', 'La vallée de l\'oued Miliane', 'À l\'est d\'El Fahs, la plaine de Thibica appartient à la riche vallée de l\'oued Miliane. Les mosaïques romaines retrouvées dans les environs témoignent de plus de 2 000 ans de céréales et d\'oliviers.'],
   ['III', 'L\'ancienne gare', 'La halte ferroviaire de la ligne El Fahs–Bouarada, aujourd\'hui en ruines, est le repère le plus connu du lieu. C\'est elle que l\'on retrouve gravée sur notre étiquette.']
 ];
