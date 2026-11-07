@@ -3,7 +3,7 @@ export default function Hero() {
     <section className="hero" id="accueil">
       <video
         className="hero-bg"
-        poster="/img/verger-aujourdhui.jpg"
+        poster="/img/hero-verger.jpg"
         autoPlay
         muted
         loop

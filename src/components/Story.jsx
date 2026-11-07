@@ -15,7 +15,7 @@ export default function Story() {
           </div>
         </div>
         <div className="photo-stack reveal">
-          <figure className="ps1"><img src="img/fondateur-tracteur.jpg" alt="Préparation de la terre avec le tracteur en 2019" loading="lazy" /><figcaption>2019, on prépare la terre</figcaption></figure>
+          <figure className="ps1"><img src="img/fondateur-olivier.jpg" alt="Le fondateur inspecte les branches d'un olivier du domaine" loading="lazy" /><figcaption>Au milieu de nos oliviers</figcaption></figure>
           <figure className="ps2"><img src="img/verger-aujourdhui.jpg" alt="Le verger d'oliviers aujourd'hui" loading="lazy" /><figcaption>Le verger aujourd'hui</figcaption></figure>
         </div>
       </div>

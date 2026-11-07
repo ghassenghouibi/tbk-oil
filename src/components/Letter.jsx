@@ -18,7 +18,7 @@ export default function Letter() {
           <p>Après une carrière à diriger des établissements hôteliers au Moyen-Orient, en Asie du Sud-Est et en Afrique, j'ai appris que les entreprises qui réussissent sont celles qui reposent sur l'authenticité, une vision à long terme et une exigence de qualité sans compromis. Ce sont ces mêmes principes qui guideront le Domaine Thibica.</p>
           <p>Avant tout, c'est un projet construit pour durer. J'espère qu'un jour mes enfants marcheront parmi ces mêmes oliviers, en sachant qu'ils n'en ont pas simplement hérité : ces arbres auront été protégés, améliorés, et confiés à la génération suivante.</p>
           <p>Bienvenue au Domaine Thibica.</p>
-          <div className="sign"><div><div className="name">Hakim Karoui</div><small>Fondateur · Domaine Thibica</small><small className="cert">Master Miller Certified · University of California Davis · Olive Center</small></div></div>
+          <div className="sign"><div><div className="name">Hakim Karoui</div><small>Fondateur – Domaine THIBICA</small><small className="cert">Master Miller Certified – University of California, Davis</small><small className="cert">Agriculture &amp; Natural Resources | Food Science &amp; Technology | Olive Center</small></div></div>
         </div>
       </div>
     </section>
