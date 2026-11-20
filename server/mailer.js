@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-/* Mail sending through the OVH mailbox contact@thibica.com (SMTP).
+/* Mail sending through the OVH mailbox info@thibica.com (SMTP).
    All credentials come from environment variables, see .env.example. */
 
 const LIMITS = { type: 60, name: 120, email: 200, phone: 40, format: 80, qty: 10, message: 4000 };
@@ -68,7 +68,7 @@ ${rows.map(([k, v]) => `<tr><td style="color:#4a5541"><b>${esc(k)}</b></td><td>$
       from: cfg.from,
       to: d.email,
       subject: 'Nous avons bien reçu votre demande · Domaine Thibica',
-      text: `Bonjour ${d.name},\n\nMerci pour votre demande. Nous revenons vers vous rapidement avec les prix et les délais.\n\nRécapitulatif :\n${text}\n\nDomaine Thibica\ncontact@thibica.com`
+      text: `Bonjour ${d.name},\n\nMerci pour votre demande. Nous revenons vers vous rapidement avec les prix et les délais.\n\nRécapitulatif :\n${text}\n\nDomaine Thibica\ninfo@thibica.com`
     }).catch(() => {}); // the confirmation is a courtesy, the order itself already went through
   }
 

@@ -1,5 +1,5 @@
 // Adresse publique affichée sur le site. L'envoi réel passe par /api/contact (voir .env.example).
-export const CONTACT_EMAIL = 'contact@thibica.com';
+export const CONTACT_EMAIL = 'info@thibica.com';
 
 export const reduceMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
