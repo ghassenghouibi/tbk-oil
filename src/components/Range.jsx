@@ -1,4 +1,5 @@
 import { PRODUCTS } from '../data.js';
+import { Button, SectionHeading } from './ui';
 
 function Bottle({ h, id }) {
   const H = 180, bh = H * h, y0 = H - bh, w = 34 + 10 * h, cx = 40;
@@ -35,11 +36,12 @@ export default function Range({ onPick }) {
   return (
     <section id="gamme">
       <div className="wrap">
-        <div className="reveal">
-          <span className="eyebrow">La gamme</span>
-          <h2 style={{ margin: '12px 0 16px' }}>Une seule huile, cinq formats</h2>
-          <p className="lead">Notre huile d'olive extra vierge biologique, de variété Koroneiki, issue exclusivement de notre verger. Choisissez le format qui vous ressemble.</p>
-        </div>
+        <SectionHeading
+          className="reveal"
+          eyebrow="La gamme"
+          title="Une seule huile, cinq formats"
+          lead="Notre huile d'olive extra vierge biologique, de variété Koroneiki, issue exclusivement de notre verger. Choisissez le format qui vous ressemble."
+        />
         <div className="range-hero reveal"><img src="img/gamme.jpg" alt="La gamme Thibica : bouteilles de 250 ml à 1 L et bidons" loading="lazy" /></div>
 
         <div className="range-grid">
@@ -47,7 +49,7 @@ export default function Range({ onPick }) {
             <article className="prod reveal" key={p.vol}>
               {p.tin ? <Tin /> : p.img ? <img className="bottle" src={`img/${p.img}`} alt={`Bouteille Thibica ${p.vol}`} loading="lazy" /> : <Bottle h={p.h} id={`bottle-g${i}`} />}
               <span className="kind">{p.kind}</span><span className="vol">{p.vol}</span><p>{p.text}</p>
-              <button className="pick" type="button" onClick={() => onPick(i)}>Demander ce format</button>
+              <Button className="pick" variant="outline" size="sm" onClick={() => onPick(i)}>Demander ce format</Button>
             </article>
           ))}
         </div>

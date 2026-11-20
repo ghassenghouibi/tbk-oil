@@ -2,17 +2,24 @@
 import * as T from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
+// Yield to the browser between build steps: the scene is built in small slices
+// so scrolling and input stay smooth while it is prepared.
+const pause = () => new Promise(r => (globalThis.scheduler?.yield ? globalThis.scheduler.yield().then(r) : setTimeout(r, 0)));
+
 // Builds the mill scene on `canvas` and drives the camera from the scroll position of `stepsEls`.
-// Returns a cleanup function, or null when WebGL is unavailable.
-export function createMillScene({ canvas, stage, stepsEls, hud, onActive, reduce }) {
+// Resolves to a cleanup function, or null when WebGL is unavailable.
+export async function createMillScene({ canvas, stage, stepsEls, hud, onActive, reduce }) {
 let renderer;
-try { renderer = new T.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'}); }
+try { renderer = new T.WebGLRenderer({canvas, antialias:devicePixelRatio < 2, powerPreference:'high-performance'}); }
 catch { return null; }
 
 const SP = 16; // distance entre les postes
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+/* Adaptive resolution: start at a sensible pixel ratio, then lower or raise it from the measured frame time. */
+const MAX_DPR = Math.min(devicePixelRatio, innerWidth <= 860 ? 1.5 : 1.75), MIN_DPR = Math.min(.75, MAX_DPR);
+let dpr = Math.min(MAX_DPR, 1.25);
+renderer.setPixelRatio(dpr);
 renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = .95;
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFShadowMap;
 const scene = new T.Scene();
 const BG = new T.Color('#11170d');
 scene.background = BG; scene.fog = new T.Fog(BG, 15, 34);
@@ -24,7 +31,7 @@ const aniso = renderer.capabilities.getMaxAnisotropy();
 /* lumière : soleil de fin d'après-midi + contre-jour doré */
 scene.add(new T.HemisphereLight('#ffe9c4', '#1a2114', .55));
 const key = new T.DirectionalLight('#ffd49a', 3.4);
-key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -.0004; key.shadow.normalBias = .02;
+key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -.0004; key.shadow.normalBias = .02;
 Object.assign(key.shadow.camera, {left:-7, right:7, top:7, bottom:-7, near:1, far:40});
 const fill = new T.DirectionalLight('#a9bce0', .45);
 const rim = new T.SpotLight('#ffc768', 90, 30, .55, .7, 1.6);
@@ -46,8 +53,10 @@ const granite = (base, rep) => tex(512, 512, (x, w, h) => {
   dots(x, w, h, 90, ['#6d665b', '#cfc7b8'], 20, 60, .08);
   dots(x, w, h, 9000, ['#4e4840', '#d9d2c4', '#2b2723', '#8f877a'], .6, 2.4, .55);
 }, {repeat: rep});
-const graniteT = granite('#a49c8c', [6, 2]), graniteBump = granite('#888', [6, 2]); graniteBump.colorSpace = T.NoColorSpace;
-const millT = granite('#b3ab9b', [3, 1]);
+await pause();
+const graniteT = granite('#a49c8c', [6, 2]); await pause();
+const graniteBump = granite('#888', [6, 2]); graniteBump.colorSpace = T.NoColorSpace; await pause();
+const millT = granite('#b3ab9b', [3, 1]); await pause();
 const woodT = tex(512, 512, (x, w, h) => {
   x.fillStyle = '#8b5d38'; x.fillRect(0, 0, w, h);
   for (let i = 0; i < 160; i++) {
@@ -60,11 +69,13 @@ const barkT = tex(256, 512, (x, w, h) => {
   x.fillStyle = '#5b4b3b'; x.fillRect(0, 0, w, h);
   for (let i = 0; i < 260; i++) { x.strokeStyle = `rgba(${Math.random() < .5 ? '35,28,20' : '140,125,105'},${rnd(.1, .35)})`; x.lineWidth = rnd(1, 4); const X = rnd(0, w); x.beginPath(); x.moveTo(X, rnd(0, h)); x.lineTo(X + rnd(-6, 6), rnd(0, h)); x.stroke(); }
 }, {repeat: [6, 1]});
+await pause();
 const brushed = tex(512, 512, (x, w, h) => {
   x.fillStyle = '#b9bec2'; x.fillRect(0, 0, w, h);
   for (let i = 0; i < 2600; i++) { x.fillStyle = Math.random() < .5 ? 'rgba(255,255,255,.07)' : 'rgba(40,45,50,.06)'; x.fillRect(rnd(-w, w), rnd(0, h), rnd(80, 500), rnd(.5, 1.5)); }
 }, {repeat: [3, 1]});
 const brushedR = brushed.clone(); brushedR.colorSpace = T.NoColorSpace;
+await pause();
 const pasteT = tex(512, 512, (x, w, h) => {
   x.fillStyle = '#4b4220'; x.fillRect(0, 0, w, h);
   dots(x, w, h, 260, ['#3a3115', '#5f5a2a'], 8, 26, .3);
@@ -76,12 +87,14 @@ const skinT = tex(256, 256, (x, w, h) => {
   dots(x, w, h, 40, ['#b8b8b8', '#f2f2f2'], 10, 30, .25);
   dots(x, w, h, 500, ['#ffffff'], .5, 1.3, .55);
 });
-const floorT = tex(1024, 1024, (x, w, h) => {
+await pause();
+const floorT = tex(512, 512, (x, w, h) => {
   x.fillStyle = '#2a3022'; x.fillRect(0, 0, w, h);
-  for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) { const v = rnd(-3, 3); x.fillStyle = `rgb(${40 + v},${46 + v},${34 + v})`; x.fillRect(c * 512 + 2, r * 512 + 2, 508, 508); }
-  dots(x, w, h, 120, ['#20261a', '#3a4230'], 30, 90, .12);
-  dots(x, w, h, 14000, ['#1b2016', '#4a5240', '#363d2d'], .6, 2, .45);
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) { const v = rnd(-3, 3); x.fillStyle = `rgb(${40 + v},${46 + v},${34 + v})`; x.fillRect(c * 256 + 1, r * 256 + 1, 254, 254); }
+  dots(x, w, h, 60, ['#20261a', '#3a4230'], 15, 45, .12);
+  dots(x, w, h, 3500, ['#1b2016', '#4a5240', '#363d2d'], .3, 1, .45);
 }, {repeat: [10, 10]});
+await pause();
 
 /* ---------- matériaux ---------- */
 const std = (o) => new T.MeshStandardMaterial(Object.assign({envMapIntensity:.6}, o));
@@ -98,8 +111,8 @@ const M = {
   brass: phy({color:'#c9a050', metalness:1, roughness:.24, envMapIntensity:1.2}),
   paint: phy({color:'#2f3d25', roughness:.4, clearcoat:.8, clearcoatRoughness:.2}),
   cork: std({map:tex(128, 128, (x, w, h) => { x.fillStyle = '#b48a5c'; x.fillRect(0, 0, w, h); dots(x, w, h, 900, ['#7d5a36', '#d8b88c'], .6, 2, .7); }), roughness:.95}),
-  glass: phy({color:'#ffffff', transmission:1, thickness:.25, ior:1.5, roughness:.03, attenuationColor:'#cfe6ff', attenuationDistance:3, envMapIntensity:1, specularIntensity:1}),
-  greenGlass: phy({color:'#e8f2df', transmission:1, thickness:.35, ior:1.52, roughness:.04, attenuationColor:'#2d5a1f', attenuationDistance:.45, envMapIntensity:1.3, clearcoat:1, clearcoatRoughness:.02}),
+  glass: phy({color:'#dfeefc', transparent:true, opacity:.22, roughness:.03, envMapIntensity:1.4, clearcoat:1, clearcoatRoughness:.02, depthWrite:false}),
+  greenGlass: phy({color:'#2f5a22', transparent:true, opacity:.55, roughness:.04, envMapIntensity:1.6, clearcoat:1, clearcoatRoughness:.02, depthWrite:false}),
   leafTop: std({color:'#4c5c33', roughness:.45, side:T.FrontSide}),
   leafBot: std({color:'#a9b29b', roughness:.8, side:T.BackSide})
 };
@@ -126,6 +139,7 @@ const stations = [];
 const floor = new T.Mesh(new T.PlaneGeometry(160, 160), std({map:floorT, bumpMap:floorT, bumpScale:1.5, roughness:.82}));
 floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
 
+await pause();
 /* ===== 1 · Récolte ===== */
 {
   const g = new T.Group(); scene.add(g);
@@ -178,6 +192,7 @@ floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
   }});
 }
 
+await pause();
 /* ===== 2 · Broyage ===== */
 {
   const g = new T.Group(); g.position.x = SP; scene.add(g);
@@ -212,6 +227,7 @@ floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
   }});
 }
 
+await pause();
 /* ===== 3 · Malaxage ===== */
 {
   const g = new T.Group(); g.position.x = SP * 2; scene.add(g);
@@ -228,18 +244,23 @@ floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
   shaft.add(new T.Mesh(new T.CylinderGeometry(.08, .08, 3.4, 16), M.steel));
   for (let i = 0; i < 7; i++) { const b = new T.Mesh(new T.BoxGeometry(3, .06, .32), M.steel); b.position.y = -.85 + i * .22; b.rotation.set(.45, i * .62, 0); shaft.add(b); }
   const drive = new T.Mesh(new T.BoxGeometry(.9, .6, .7), M.paint); drive.position.y = Y + H / 2 + .55; g.add(drive);
-  const drops = [];
-  for (let i = 0; i < 40; i++) { const d = new T.Mesh(new T.SphereGeometry(rnd(.03, .07), 16, 12), M.oil); d.scale.y = .45; d.userData = {a:rnd(0, 6.28), s:rnd(.15, .35), r:rnd(.25, 1.55)}; g.add(d); drops.push(d); }
-  shadowAll(g);
+  const drops = [], dropMesh = new T.InstancedMesh(new T.SphereGeometry(1, 16, 12), M.oil, 40);
+  for (let i = 0; i < 40; i++) drops.push({a:rnd(0, 6.28), s:rnd(.15, .35), r:rnd(.25, 1.55), size:rnd(.03, .07)});
+  shadowAll(g); g.add(dropMesh);
   const sy = surf.position.y;
   stations.push({g, look:new T.Vector3(SP * 2, 1.5, 0), cam:new T.Vector3(SP * 2 + .9, 5, 8.4), tick(t) {
     shaft.rotation.y = t * .6;
     for (let i = 0; i < pos.count; i++) { const x = base[i * 3], y = base[i * 3 + 1], r = Math.hypot(x, y), a = Math.atan2(y, x); pos.array[i * 3 + 2] = (Math.sin(a * 3 - t * 1.2 + r * 2.2) * .045 + Math.sin(r * 5 - t) * .015) * r; }
     pos.needsUpdate = true; sg.computeVertexNormals();
-    drops.forEach(d => { const u = d.userData; u.a += .006 + u.s * .01; const r = u.r + Math.sin(t * u.s * 3) * .1; d.position.set(Math.cos(u.a) * r, sy + .05, Math.sin(u.a) * r); });
+    drops.forEach((u, i) => {
+      u.a += .006 + u.s * .01; const r = u.r + Math.sin(t * u.s * 3) * .1;
+      dummy.position.set(Math.cos(u.a) * r, sy + .05, Math.sin(u.a) * r); dummy.rotation.set(0, 0, 0); dummy.scale.set(u.size, u.size * .45, u.size); dummy.updateMatrix(); dropMesh.setMatrixAt(i, dummy.matrix);
+    });
+    dropMesh.instanceMatrix.needsUpdate = true;
   }});
 }
 
+await pause();
 /* ===== 4 · Extraction ===== */
 {
   const g = new T.Group(); g.position.x = SP * 3; scene.add(g);
@@ -265,6 +286,7 @@ floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
   }});
 }
 
+await pause();
 /* ===== 5 · Mise en bouteille ===== */
 {
   const g = new T.Group(); g.position.x = SP * 4; scene.add(g);
@@ -324,16 +346,40 @@ const readScroll = () => {
   if (best !== active) { active = best; onActive(active); }
   hud.forEach((h, i) => h.style.transform = `scaleX(${Math.max(0, Math.min(1, progress - i + 1 - introK))})`);
 };
-addEventListener('scroll', readScroll, {passive:true}); readScroll();
+let scrollDirty = false;
+const onScroll = () => { scrollDirty = true; };
+addEventListener('scroll', onScroll, {passive:true}); readScroll();
 shown = progress; introShown = introK;
 const onPointer = e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; };
 stage.addEventListener('pointermove', onPointer);
 
+/* Upload every texture and compile every shader now, so no station stutters the first time it appears. */
+await pause();
+const textures = new Set();
+scene.traverse(o => [].concat(o.material || []).forEach(m => Object.values(m).forEach(v => { if (v?.isTexture) textures.add(v); })));
+for (const t of textures) renderer.initTexture(t);
+await pause();
+resize(); readScroll(); shown = progress; introShown = introK;
+// Compile in the background where the browser supports it; never wait more than 1.5 s for it.
+if (renderer.compileAsync) await Promise.race([renderer.compileAsync(scene, camera), new Promise(r => setTimeout(r, 1500))]);
+else renderer.compile(scene, camera);
+
 const A = new T.Vector3(), B = new T.Vector3(), clock = new T.Clock();
 let running = false, time = 0, first = true, raf = 0;
+let perfFrames = 0, perfTime = 0, goodWindows = 0;
+function adapt(dt) {
+  perfFrames++; perfTime += dt;
+  if (perfFrames < 40) return;
+  const avg = perfTime / perfFrames; perfFrames = 0; perfTime = 0;
+  if (avg > 1 / 45 && dpr > MIN_DPR) { dpr = Math.max(MIN_DPR, dpr - .25); goodWindows = 0; renderer.setPixelRatio(dpr); resize(); }
+  else if (avg < 1 / 70 && dpr < MAX_DPR) { if (++goodWindows >= 3) { dpr = Math.min(MAX_DPR, dpr + .125); goodWindows = 0; renderer.setPixelRatio(dpr); resize(); } }
+  else goodWindows = 0;
+}
 function frame() {
   if (!visible) { running = false; return; }
-  const dt = Math.min(clock.getDelta(), .05);
+  const raw = clock.getDelta(), dt = Math.min(raw, .05);
+  if (!first) adapt(raw);
+  if (scrollDirty) { scrollDirty = false; readScroll(); }
   time += reduce ? dt * .3 : dt;
   const ease = first || reduce ? 1 : .065; first = false;
   shown += (progress - shown) * ease; introShown += (introK - introShown) * ease;
@@ -355,7 +401,7 @@ io.observe(canvas);
 
 return () => {
   visible = false; cancelAnimationFrame(raf); io.disconnect();
-  removeEventListener('resize', resize); removeEventListener('scroll', readScroll);
+  removeEventListener('resize', resize); removeEventListener('scroll', onScroll);
   stage.removeEventListener('pointermove', onPointer);
   const disposed = new Set(), dispose = r => { if (r && !disposed.has(r)) { disposed.add(r); r.dispose(); } };
   scene.traverse(o => {

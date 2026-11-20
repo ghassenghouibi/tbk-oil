@@ -1,0 +1,9 @@
+node_modules
+dist
+.vercel
+.git
+.DS_Store
+hero_video_original.mp4
+*.docx
+.env
+.env*.local

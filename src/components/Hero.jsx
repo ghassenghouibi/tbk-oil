@@ -1,14 +1,30 @@
+import { useEffect, useRef } from 'react';
+import { reduceMotion } from '../data.js';
+import { Button } from './ui';
+
 export default function Hero() {
+  const video = useRef(null);
+
+  /* The background video only plays while it is on screen: no decoding cost while reading further down. */
+  useEffect(() => {
+    const v = video.current;
+    if (reduceMotion) { v.pause(); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); });
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <section className="hero" id="accueil">
       <video
+        ref={video}
         className="hero-bg"
         poster="/img/hero-verger.jpg"
         autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         aria-hidden="true"
       >
         <source src="/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
@@ -26,8 +42,8 @@ export default function Hero() {
             <li>Zaghouan · Tunisie</li>
           </ul>
           <div className="btns">
-            <a className="btn btn-gold" href="#gamme">Découvrir la gamme</a>
-            <a className="btn btn-ghost" href="#histoire">Notre histoire</a>
+            <Button href="#gamme">Découvrir la gamme</Button>
+            <Button href="#histoire" variant="ghost">Notre histoire</Button>
           </div>
         </div>
       </div>

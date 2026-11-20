@@ -21,7 +21,7 @@ export default function Nav() {
     <header className={cls} id="nav">
       <div className="wrap">
         <a className="brand" href="#accueil" aria-label="Domaine Thibica, accueil">
-          <img src="img/logo.png" alt="" />
+          <img src="img/logo-96.png" alt="" width="44" height="44" />
           <span>THIBICA</span>
         </a>
         <button className="burger" aria-label="Ouvrir le menu" aria-expanded={open} aria-controls="menu" onClick={() => setOpen(o => !o)}>
