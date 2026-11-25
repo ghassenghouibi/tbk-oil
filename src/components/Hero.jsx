@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { reduceMotion } from '../data.js';
+import { useT } from '../i18n';
 import { Button } from './ui';
 
 export default function Hero() {
+  const t = useT();
   const video = useRef(null);
 
   /* The background video only plays while it is on screen: no decoding cost while reading further down. */
@@ -32,18 +34,15 @@ export default function Hero() {
       </video>
       <div className="wrap">
         <div className="ar" lang="ar">تبيكة</div>
-        <h1>Thibica</h1>
-        <p className="tag">Huile d'olive extra vierge biologique, née sur la terre de notre famille, à quelques kilomètres de Thuburbo Majus, en Tunisie.</p>
+        <h1 className="latin">Thibica</h1>
+        <p className="tag">{t.hero.tag}</p>
         <div className="hero-row">
           <ul className="facts">
-            <li>Agriculture biologique</li>
-            <li>Variété Koroneiki</li>
-            <li>De notre propre verger</li>
-            <li>Zaghouan · Tunisie</li>
+            {t.hero.facts.map(f => <li key={f}>{f}</li>)}
           </ul>
           <div className="btns">
-            <Button href="#gamme">Découvrir la gamme</Button>
-            <Button href="#histoire" variant="ghost">Notre histoire</Button>
+            <Button href="#gamme">{t.hero.range}</Button>
+            <Button href="#histoire" variant="ghost">{t.hero.story}</Button>
           </div>
         </div>
       </div>

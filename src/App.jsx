@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { reduceMotion } from './data.js';
+import { DICTS, I18nProvider } from './i18n';
 import Nav from './components/Nav.jsx';
 import Hero from './components/Hero.jsx';
 import Story from './components/Story.jsx';
@@ -25,7 +26,7 @@ function useReveal() {
   }, []);
 }
 
-export default function App() {
+export default function App({ lang }) {
   const [format, setFormat] = useState(1);
   const nameRef = useRef(null);
   useReveal();
@@ -37,7 +38,7 @@ export default function App() {
   };
 
   return (
-    <>
+    <I18nProvider value={DICTS[lang]}>
       <Nav />
       <main>
         <Hero />
@@ -50,6 +51,6 @@ export default function App() {
         <Order format={format} setFormat={setFormat} nameRef={nameRef} />
       </main>
       <Footer />
-    </>
+    </I18nProvider>
   );
 }

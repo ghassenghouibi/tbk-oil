@@ -35,23 +35,31 @@ section{padding:clamp(72px,10vw,130px) 0}
 /* NAV */
 .nav{position:fixed;inset:0 0 auto 0;height:var(--nav-h);z-index:50;display:flex;align-items:center;transition:background .35s,box-shadow .35s}
 .nav.solid{background:rgba(243,236,221,.97);box-shadow:0 1px 0 var(--line)}
-.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.nav .wrap{display:flex;align-items:center;gap:20px}
+.nav .menu{margin-inline-start:auto}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .brand img{width:44px;height:44px;object-fit:contain}
 .brand span{font-family:var(--font-caps);font-weight:600;letter-spacing:.14em;font-size:1rem}
 .nav:not(.solid) .brand span,.nav:not(.solid) .menu a{color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.45)}
 .menu{display:flex;gap:clamp(12px,2vw,28px);list-style:none;margin:0;padding:0;align-items:center}
 .menu a{text-decoration:none;font-size:.86rem;font-weight:600;letter-spacing:.04em;position:relative;padding:6px 0}
-.menu a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--gold);transition:right .3s}
-.menu a:hover::after,.menu a.active::after{right:0}
+.menu a::after{content:"";position:absolute;inset-inline:0 100%;bottom:0;height:1px;background:var(--gold);transition:inset-inline-end .3s}
+.menu a:hover::after,.menu a.active::after{inset-inline-end:0}
 .menu .cta{border:1px solid var(--gold);padding:8px 16px;border-radius:999px;color:var(--gold)!important;text-shadow:none!important}
 .nav:not(.solid) .menu .cta{background:rgba(22,29,18,.35)}
 .menu .cta::after{display:none}
+.langs{display:flex;align-items:center;gap:2px;font-size:.74rem;font-weight:700;letter-spacing:.06em}
+.langs a{text-decoration:none;padding:6px 7px;border-radius:999px;opacity:.75;transition:opacity .2s,background .2s}
+.langs a:hover{opacity:1}
+.langs a[aria-current="page"]{opacity:1;box-shadow:inset 0 0 0 1px var(--gold)}
+.langs a[lang="ar"]{font-family:var(--font-ar);font-size:.95rem;letter-spacing:0;line-height:1}
+.nav:not(.solid):not(.menu-open) .langs a{color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.45)}
 .burger{display:none;background:none;border:0;width:44px;height:44px;cursor:pointer;color:inherit}
 .burger span{display:block;width:24px;height:2px;background:currentColor;margin:5px auto;transition:transform .3s,opacity .3s}
 .nav:not(.solid) .burger{color:#fff}
 @media (max-width:960px){
   .burger{display:block}
+  .langs{margin-inline-start:auto}
   .menu{position:fixed;inset:var(--nav-h) 0 auto 0;flex-direction:column;align-items:stretch;gap:0;background:var(--paper);padding:8px 20px 22px;box-shadow:0 20px 40px rgba(0,0,0,.15);transform:translateY(-130%);transition:transform .4s}
   .menu.open{transform:none}
   .menu a{display:block;padding:14px 0;border-bottom:1px solid var(--line);color:var(--ink)!important;text-shadow:none!important;font-size:1rem}
@@ -120,7 +128,7 @@ section{padding:clamp(72px,10vw,130px) 0}
 .photo-stack{position:relative;aspect-ratio:4/5}
 .photo-stack figure{margin:0;position:absolute;box-shadow:0 30px 60px -25px rgba(31,42,27,.45);background:#fff;padding:10px 10px 34px}
 .photo-stack figure img{width:100%;height:100%;object-fit:cover}
-.photo-stack figcaption{position:absolute;bottom:8px;left:12px;font-family:var(--font-display);font-style:italic;font-size:1rem;color:var(--ink-soft)}
+.photo-stack figcaption{position:absolute;bottom:8px;inset-inline-start:12px;font-family:var(--font-display);font-style:italic;font-size:1rem;color:var(--ink-soft)}
 .ps1{inset:0 22% 26% 0;transform:rotate(-3deg)}
 .ps2{inset:36% 0 0 30%;transform:rotate(2.5deg)}
 .pivot{margin-top:8px;font-family:var(--font-display);font-size:clamp(1.5rem,2.6vw,2rem);font-style:italic;color:var(--olive);line-height:1.3}
@@ -205,12 +213,12 @@ section{padding:clamp(72px,10vw,130px) 0}
 .prod p{font-size:.9rem;color:var(--ink-soft);line-height:1.45}
 .prod .pick{margin-top:auto}
 .promises{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:64px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.promise{padding:28px 22px;border-left:1px solid var(--line)}
-.promise:first-child{border-left:0;padding-left:0}
+.promise{padding:28px 22px;border-inline-start:1px solid var(--line)}
+.promise:first-child{border-inline-start:0;padding-inline-start:0}
 .promise b{font-family:var(--font-display);font-size:1.4rem;display:block;font-weight:600;margin-bottom:6px}
 .promise p{font-size:.92rem;color:var(--ink-soft)}
-@media (max-width:1000px){.range-grid{grid-template-columns:repeat(3,1fr)}.promises{grid-template-columns:1fr 1fr}.promise:nth-child(3){border-left:0;padding-left:0}.promise:nth-child(n+3){border-top:1px solid var(--line)}}
-@media (max-width:560px){.range-grid{grid-template-columns:1fr 1fr}.promises{grid-template-columns:1fr}.promise{border-left:0;padding-left:0;border-top:1px solid var(--line)}.promise:first-child{border-top:0}}
+@media (max-width:1000px){.range-grid{grid-template-columns:repeat(3,1fr)}.promises{grid-template-columns:1fr 1fr}.promise:nth-child(3){border-inline-start:0;padding-inline-start:0}.promise:nth-child(n+3){border-top:1px solid var(--line)}}
+@media (max-width:560px){.range-grid{grid-template-columns:1fr 1fr}.promises{grid-template-columns:1fr}.promise{border-inline-start:0;padding-inline-start:0;border-top:1px solid var(--line)}.promise:first-child{border-top:0}}
 
 /* LETTRE */
 .letter{background:var(--olive);color:#efe7d4;position:relative;overflow:hidden}
@@ -251,14 +259,14 @@ fieldset.field{border:0;padding:0;margin:0}
 .control[aria-invalid="true"]{border-color:#9b2c1f}
 textarea.control{min-height:120px;resize:vertical}
 .select{position:relative}
-.select .control{appearance:none;-webkit-appearance:none;padding-right:42px;cursor:pointer}
-.select::after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:1.5px solid var(--olive);border-bottom:1.5px solid var(--olive);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.select .control{appearance:none;-webkit-appearance:none;padding-inline-end:42px;cursor:pointer}
+.select::after{content:"";position:absolute;inset-inline-end:16px;top:50%;width:8px;height:8px;border-right:1.5px solid var(--olive);border-bottom:1.5px solid var(--olive);transform:translateY(-70%) rotate(45deg);pointer-events:none}
 .seg{display:flex;border:1px solid var(--line);background:#fff}
 .seg label{flex:1;text-align:center;padding:12px;cursor:pointer;margin:0;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);transition:background .2s,color .2s}
 .seg input{position:absolute;opacity:0;pointer-events:none;width:1px}
 .seg label:has(input:checked){background:var(--olive);color:#fff}
 .seg label:has(input:focus-visible){outline:2px solid var(--gold);outline-offset:-4px}
-.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.hp{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .result{grid-column:1/-1;display:none;border:1px dashed var(--gold);padding:16px;background:#fff;font-size:.92rem}
 .result.show{display:grid;gap:10px}
 .result .row{display:flex;gap:10px;flex-wrap:wrap}
@@ -278,6 +286,29 @@ footer nav a:hover{color:var(--gold-light)}
   .letter-side{position:relative;top:0}
   .letter-side img{aspect-ratio:16/10}
 }
+
+/* RIGHT-TO-LEFT (Arabic) ------------------------------------------------------------
+   Arabic letters join, so no letter-spacing, no uppercase and no drop cap; Arabic has no italics either.
+   Latin brand marks (.latin) keep their Cinzel caps. */
+:root[lang="ar"]{
+  --font-display:"Amiri", "Geeza Pro", serif;
+  --font-caps:"Amiri", "Geeza Pro", serif;
+  --font-body:"IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+}
+:root[lang="ar"] body{font-size:18px;line-height:1.8}
+:root[lang="ar"] *:not(.latin){letter-spacing:0!important;font-style:normal!important}
+:root[lang="ar"] .latin{font-family:"Cinzel", "Trajan Pro", Georgia, serif}
+:root[lang="ar"] h1,:root[lang="ar"] h2,:root[lang="ar"] h3{line-height:1.4}
+:root[lang="ar"] .eyebrow,:root[lang="ar"] .lineage-title,:root[lang="ar"] .gen b{font-size:1rem;font-weight:700}
+:root[lang="ar"] .letter-body{font-size:clamp(1.15rem,1.5vw,1.28rem);line-height:1.95}
+:root[lang="ar"] .letter-body .first::first-letter{float:none;font:inherit;padding:0;color:inherit}
+:root[lang="ar"] .step .num{font-family:"Cinzel", Georgia, serif}
+[dir="rtl"] .timeline-bar i{transform-origin:right}
+[dir="rtl"] .ps1{transform:rotate(3deg)}
+[dir="rtl"] .ps2{transform:rotate(-2.5deg)}
+/* The 3D scene is lit and shaded for text on its left: keep that layout, only the text inside runs right to left. */
+[dir="rtl"] .mill-stage{direction:ltr}
+[dir="rtl"] .mill-intro,[dir="rtl"] .step-card,[dir="rtl"] .scene-fallback{direction:rtl}
 
 .reveal{transition:opacity .9s ease,transform .9s ease}
 .js .reveal.pre{opacity:.001;transform:translateY(26px)}

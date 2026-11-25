@@ -302,7 +302,7 @@ await pause();
     cork.position.y = 3.55;
     return shadowAll(b);
   };
-  const labelT = new T.TextureLoader().load('img/etiquette.jpg'); labelT.colorSpace = T.SRGBColorSpace; labelT.anisotropy = aniso;
+  const labelT = new T.TextureLoader().load('/img/etiquette.jpg'); labelT.colorSpace = T.SRGBColorSpace; labelT.anisotropy = aniso;
   const paperB = tex(256, 256, (x, w, h) => { x.fillStyle = '#888'; x.fillRect(0, 0, w, h); dots(x, w, h, 4000, ['#666', '#aaa'], .4, 1.2, .6); }, {srgb:false, repeat:[4, 4]});
   const labelMat = std({map:labelT, bumpMap:paperB, bumpScale:.6, roughness:.75});
   const plinth = new T.Mesh(new T.CylinderGeometry(1.5, 1.6, .28, 96), phy({map:graniteT, color:'#3a4232', roughness:.28, clearcoat:.6})); plinth.position.y = .14; g.add(shadowAll(plinth));

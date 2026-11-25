@@ -1,27 +1,21 @@
+import { useT } from '../i18n';
 import { SectionHeading } from './ui';
 
-const ITEMS = [
-  ['I', 'Un site antique', 'Thibica est un site archéologique d\'époque romaine, à quelques kilomètres de Thuburbo Majus, en Tunisie, l\'une des plus remarquables cités romaines d\'Afrique du Nord. Sur les colonnes de ses temples, des branches d\'olivier sont sculptées dans la pierre.'],
-  ['II', 'La vallée de l\'oued Miliane', 'À l\'est d\'El Fahs, la plaine de Thibica appartient à la riche vallée de l\'oued Miliane. Les mosaïques romaines retrouvées dans les environs témoignent de plus de 2 000 ans de céréales et d\'oliviers.'],
-  ['III', 'L\'ancienne gare', 'La halte ferroviaire de la ligne El Fahs–Bouarada, aujourd\'hui en ruines, est le repère le plus connu du lieu. C\'est elle que l\'on retrouve gravée sur notre étiquette.']
-];
+const NUMERALS = ['I', 'II', 'III'];
 
 export default function Place() {
+  const { place: p } = useT();
   return (
     <section className="place" id="thibica">
       <div className="wrap place-grid">
         <div className="place-art reveal">
-          <img src="img/etiquette.jpg" alt="Étiquette Thibica représentant l'ancienne gare de Thibica, gravure" loading="lazy" />
+          <img src="/img/etiquette.jpg" alt={p.artAlt} loading="lazy" />
         </div>
         <div className="reveal">
-          <SectionHeading
-            eyebrow="Pourquoi Thibica"
-            title="Un nom romain, une terre d'oliviers depuis 2 000 ans"
-            lead="Thibica (Tībīkā) est une localité du gouvernorat de Zaghouan, dans la délégation d'El Fahs, près de Bir Magra. C'est là que pousse notre huile."
-          />
+          <SectionHeading eyebrow={p.eyebrow} title={p.title} lead={p.lead} />
           <div className="place-list">
-            {ITEMS.map(([k, title, text]) => (
-              <div className="place-item" key={k}><span className="k">{k}</span><div><h3>{title}</h3><p>{text}</p></div></div>
+            {p.items.map(([title, text], i) => (
+              <div className="place-item" key={NUMERALS[i]}><span className="k latin">{NUMERALS[i]}</span><div><h3>{title}</h3><p>{text}</p></div></div>
             ))}
           </div>
         </div>

@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { confirmationEmail, orderEmail } from './email-templates.js';
+import { LANGS } from '../src/i18n/catalog.js';
 
 /* Mail sending through Resend's SMTP relay (domain thibica.com verified in Resend), so it never
    depends on the mailbox password. All credentials come from environment variables, see .env.example. */
@@ -41,7 +42,8 @@ export async function handleContact(payload, env = process.env) {
     phone: clean(payload.phone, LIMITS.phone),
     format: clean(payload.format, LIMITS.format),
     qty: clean(payload.qty, LIMITS.qty),
-    message: String(payload.message ?? '').trim().slice(0, LIMITS.message)
+    message: String(payload.message ?? '').trim().slice(0, LIMITS.message),
+    lang: LANGS.includes(payload.lang) ? payload.lang : 'fr' // language of the page the order came from
   };
   if (!d.name || !EMAIL_RE.test(d.email)) return { ok: false, status: 422, error: 'Nom et e-mail valides requis.' };
 

@@ -1,13 +1,9 @@
+import { GENERATION_IMAGES } from '../data.js';
+import { useT } from '../i18n';
 import { SectionHeading } from './ui';
 
 /* The three generations. The portraits are pencil drawings: they are blended into the paper
    so they read as part of the page, like engravings on the label. */
-const GENERATIONS = [
-  { role: 'Le grand-oncle', text: 'Premier gardien de la terre, cultivée en blé', img: 'portrait-grand-oncle.jpg', alt: 'Portrait au crayon du grand-oncle, premier gardien de la terre' },
-  { role: 'L\'oncle', text: 'La terre passe de main en main, toujours en céréales', img: 'portrait-oncle.jpg', alt: 'Portrait au crayon de l\'oncle, qui a repris la terre' },
-  { role: 'Aujourd\'hui', text: 'Depuis 2019, un verger d\'oliviers biologique', now: true }
-];
-
 function OliveSprig() {
   return (
     <svg viewBox="0 0 100 125" aria-hidden="true">
@@ -21,36 +17,37 @@ function OliveSprig() {
 }
 
 export default function Story() {
+  const { story: s } = useT();
+  const [before, em, after] = s.title;
   return (
     <section id="histoire">
       <div className="wrap story-grid">
         <div className="story-text reveal">
-          <SectionHeading
-            eyebrow="Notre histoire"
-            title={<>Une terre de famille, <em>replantée</em> pour les générations suivantes</>}
-            lead="Cette terre appartient à notre famille depuis des générations. Pendant des décennies, elle a donné du blé, comme partout dans la plaine d'El Fahs."
-          />
-          <p>Puis les pluies sont devenues imprévisibles et la céréale n'offrait plus la même résilience. Plutôt que de regarder la terre souffrir, nous avons choisi de nous adapter. En 2019, nous avons préparé le sol, puis planté nos premiers oliviers, un par un, à la main.</p>
-          <p className="pivot">« J'ai choisi l'olivier. Un olivier ne se plante pas pour une saison, il se plante pour des générations. »</p>
+          <SectionHeading eyebrow={s.eyebrow} title={<>{before}<em>{em}</em>{after}</>} lead={s.lead} />
+          <p>{s.text}</p>
+          <p className="pivot">{s.pivot}</p>
         </div>
         <div className="photo-stack reveal">
-          <figure className="ps1"><img src="img/fondateur-olivier.jpg" alt="Le fondateur inspecte les branches d'un olivier du domaine" loading="lazy" /><figcaption>Au milieu de nos oliviers</figcaption></figure>
-          <figure className="ps2"><img src="img/verger-aujourdhui.jpg" alt="Le verger d'oliviers aujourd'hui" loading="lazy" /><figcaption>Le verger aujourd'hui</figcaption></figure>
+          <figure className="ps1"><img src="/img/fondateur-olivier.jpg" alt={s.photos[0].alt} loading="lazy" /><figcaption>{s.photos[0].caption}</figcaption></figure>
+          <figure className="ps2"><img src="/img/verger-aujourdhui.jpg" alt={s.photos[1].alt} loading="lazy" /><figcaption>{s.photos[1].caption}</figcaption></figure>
         </div>
       </div>
 
       <div className="wrap lineage reveal">
-        <p className="lineage-title"><span>Trois générations sur la même terre</span></p>
+        <p className="lineage-title"><span>{s.lineage}</span></p>
         <ol className="gens">
-          {GENERATIONS.map(g => (
-            <li className={g.now ? 'gen now' : 'gen'} key={g.role}>
-              <div className="medallion">
-                {g.img ? <img src={`img/${g.img}`} alt={g.alt} loading="lazy" width="640" height="740" /> : <OliveSprig />}
-              </div>
-              <b>{g.role}</b>
-              <small>{g.text}</small>
-            </li>
-          ))}
+          {s.generations.map((g, i) => {
+            const img = GENERATION_IMAGES[i];
+            return (
+              <li className={img ? 'gen' : 'gen now'} key={i}>
+                <div className="medallion">
+                  {img ? <img src={`/img/${img}`} alt={g.alt} loading="lazy" width="640" height="740" /> : <OliveSprig />}
+                </div>
+                <b>{g.role}</b>
+                <small>{g.text}</small>
+              </li>
+            );
+          })}
         </ol>
       </div>
     </section>

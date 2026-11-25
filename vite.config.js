@@ -36,8 +36,22 @@ function devApi() {
   };
 }
 
+/* `npm run preview`: serve /en and /ar from their prerendered folders, like the rewrites in vercel.json. */
+function previewLanguages() {
+  return {
+    name: 'preview-languages',
+    configurePreviewServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const m = req.url.match(/^\/(en|ar)\/?(\?.*)?$/);
+        if (m) req.url = `/${m[1]}/index.html${m[2] ?? ''}`;
+        next();
+      });
+    }
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), devApi()],
+  plugins: [react(), devApi(), previewLanguages()],
   base: '/',
   // The Three.js chunk (~515 kB, 134 kB gzip) is loaded on demand, after the first screen.
   build: { chunkSizeWarningLimit: 600 }

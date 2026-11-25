@@ -1,24 +1,28 @@
 import { useRef, useState } from 'react';
-import { CONTACT_EMAIL, FORMATS } from '../data.js';
+import { CONTACT_EMAIL } from '../data.js';
+import { FORMATS, PROFILES } from '../i18n/catalog.js';
+import { useT } from '../i18n';
 import { Button, Input, RadioGroup, Select, Textarea } from './ui';
 
-const PROFILES = ['Particulier', 'Professionnel / export'];
-const FORMAT_OPTIONS = FORMATS.map((f, i) => ({ value: i, label: f }));
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Order({ format, setFormat, nameRef }) {
+  const t = useT();
+  const o = t.order;
   const emailRef = useRef(null);
-  const [form, setForm] = useState({ type: PROFILES[0], name: '', email: '', phone: '', qty: '6', message: '', website: '' });
+  const [form, setForm] = useState({ type: 0, name: '', email: '', phone: '', qty: '6', message: '', website: '' });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle · sending · sent · failed
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
+  const profileOptions = o.profiles.map((label, i) => ({ value: i, label }));
+  const formatOptions = o.formats.map((label, i) => ({ value: i, label }));
 
   const validate = () => {
     const errs = {};
-    if (!form.name.trim()) errs.name = 'Indiquez votre nom.';
-    if (!EMAIL_RE.test(form.email.trim())) errs.email = 'Indiquez une adresse e-mail valide.';
-    if (!(Number(form.qty) >= 1)) errs.qty = 'Au moins 1.';
+    if (!form.name.trim()) errs.name = o.errors.name;
+    if (!EMAIL_RE.test(form.email.trim())) errs.email = o.errors.email;
+    if (!(Number(form.qty) >= 1)) errs.qty = o.errors.qty;
     return errs;
   };
 
@@ -35,7 +39,8 @@ export default function Order({ format, setFormat, nameRef }) {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, format: FORMATS[format] })
+        // The team reads French; `lang` picks the language of the customer's confirmation e-mail.
+        body: JSON.stringify({ ...form, type: PROFILES.fr[form.type], format: FORMATS.fr[format], lang: t.lang })
       });
       if (!res.ok) throw new Error(String(res.status));
       setStatus('sent');
@@ -46,48 +51,49 @@ export default function Order({ format, setFormat, nameRef }) {
   };
 
   const mailto = () => {
-    const body = `Bonjour,\n\nJe souhaite commander l'huile d'olive Thibica.\n\nProfil : ${form.type}\nFormat : ${FORMATS[format]}\nQuantité : ${form.qty}\n\n${form.message.trim()}\n\n${form.name.trim()}\n${form.email.trim()}\n${form.phone.trim()}`;
-    return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Demande de commande Thibica (${FORMATS[format]})`)}&body=${encodeURIComponent(body)}`;
+    const m = o.mail;
+    const body = `${m.greeting}\n\n${m.intro}\n\n${m.profile} : ${o.profiles[form.type]}\n${m.format} : ${o.formats[format]}\n${m.qty} : ${form.qty}\n\n${form.message.trim()}\n\n${form.name.trim()}\n${form.email.trim()}\n${form.phone.trim()}`;
+    return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(m.subject(o.formats[format]))}&body=${encodeURIComponent(body)}`;
   };
 
   return (
     <section id="commander">
       <div className="wrap order-grid">
         <div className="order-info reveal">
-          <span className="eyebrow">Commander</span>
-          <h2>Goûtez Thibica</h2>
-          <p className="lead">Particulier, restaurant, épicerie fine ou importateur : dites-nous ce qu'il vous faut, nous revenons vers vous avec les prix et les délais.</p>
-          <p>Les commandes professionnelles et l'export sont gérés par TBK Oil Export SARL.</p>
-          <p>Vous pouvez aussi nous écrire directement : <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
+          <span className="eyebrow">{o.eyebrow}</span>
+          <h2>{o.title}</h2>
+          <p className="lead">{o.lead}</p>
+          <p>{o.trade}</p>
+          <p>{o.direct}<a href={`mailto:${CONTACT_EMAIL}`} dir="ltr">{CONTACT_EMAIL}</a></p>
           <div className="who">
-            <img src="img/logo-192.png" alt="Logo TBK Oil Export" width="96" height="96" loading="lazy" />
-            <div><b>TBK OIL EXPORT SARL</b><div className="ar" lang="ar">ت ب ك لتصدير الزيت</div><small>Tradition · Qualité · Excellence</small></div>
+            <img src="/img/logo-192.png" alt={o.logoAlt} width="96" height="96" loading="lazy" />
+            <div><b className="latin">TBK OIL EXPORT SARL</b><div className="ar" lang="ar">ت ب ك لتصدير الزيت</div><small>{o.motto}</small></div>
           </div>
         </div>
 
         <form className="order-form reveal" noValidate onSubmit={submit}>
-          <RadioGroup name="type" label="Vous êtes" options={PROFILES} value={form.type} onChange={v => setForm(f => ({ ...f, type: v }))} />
-          <Input id="f-name" label="Nom" ref={nameRef} required autoComplete="name" value={form.name} onChange={set('name')} error={errors.name} />
-          <Input id="f-email" label="E-mail" ref={emailRef} type="email" required autoComplete="email" value={form.email} onChange={set('email')} error={errors.email} />
-          <Input id="f-phone" label="Téléphone" hint="Facultatif" type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} />
-          <Select id="f-format" label="Format" options={FORMAT_OPTIONS} value={format} onChange={e => setFormat(+e.target.value)} />
-          <Input id="f-qty" label="Quantité" type="number" min="1" inputMode="numeric" value={form.qty} onChange={set('qty')} error={errors.qty} full />
-          <Textarea id="f-msg" label="Message" placeholder="Ville de livraison, occasion, volume annuel pour les professionnels…" value={form.message} onChange={set('message')} />
+          <RadioGroup name="type" label={o.labels.profile} options={profileOptions} value={form.type} onChange={v => setForm(f => ({ ...f, type: v }))} />
+          <Input id="f-name" label={o.labels.name} ref={nameRef} required autoComplete="name" value={form.name} onChange={set('name')} error={errors.name} />
+          <Input id="f-email" label={o.labels.email} ref={emailRef} type="email" dir="ltr" required autoComplete="email" value={form.email} onChange={set('email')} error={errors.email} />
+          <Input id="f-phone" label={o.labels.phone} hint={o.labels.optional} type="tel" dir="ltr" autoComplete="tel" value={form.phone} onChange={set('phone')} />
+          <Select id="f-format" label={o.labels.format} options={formatOptions} value={format} onChange={e => setFormat(+e.target.value)} />
+          <Input id="f-qty" label={o.labels.qty} type="number" min="1" inputMode="numeric" value={form.qty} onChange={set('qty')} error={errors.qty} full />
+          <Textarea id="f-msg" label={o.labels.message} placeholder={o.placeholder} value={form.message} onChange={set('message')} />
           {/* Honeypot: hidden from people, bots fill it and the server drops the request. */}
           <div className="hp" aria-hidden="true">
-            <label htmlFor="f-website">Site web</label>
+            <label htmlFor="f-website">{o.labels.website}</label>
             <input id="f-website" tabIndex={-1} autoComplete="off" value={form.website} onChange={set('website')} />
           </div>
 
           <Button type="submit" variant="olive" className="submit" loading={status === 'sending'}>
-            {status === 'sending' ? 'Envoi en cours…' : 'Envoyer ma demande'}
+            {status === 'sending' ? o.sending : o.submit}
           </Button>
 
           <div className={status === 'sent' || status === 'failed' ? 'result show' : 'result'} role="status" aria-live="polite">
-            {status === 'sent' && <p><b>Merci, votre demande est bien envoyée.</b> Nous vous répondons rapidement à l'adresse {form.email.trim()}.</p>}
+            {status === 'sent' && <p><b>{o.sentTitle}</b> {o.sentText(form.email.trim())}</p>}
             {status === 'failed' && <>
-              <p><b>L'envoi n'a pas abouti.</b> Vous pouvez nous envoyer la même demande depuis votre messagerie.</p>
-              <div className="row"><Button href={mailto()} variant="outline" size="sm">Ouvrir dans ma messagerie</Button></div>
+              <p><b>{o.failedTitle}</b> {o.failedText}</p>
+              <div className="row"><Button href={mailto()} variant="outline" size="sm">{o.openMail}</Button></div>
             </>}
           </div>
         </form>

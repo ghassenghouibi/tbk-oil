@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { STEPS, reduceMotion } from '../data.js';
+import { reduceMotion } from '../data.js';
+import { useT } from '../i18n';
 import { SectionHeading } from './ui';
 
 export default function Mill() {
+  const { mill: m } = useT();
   const canvas = useRef(null), stage = useRef(null), steps = useRef([]), hud = useRef([]);
   const [active, setActive] = useState(0);
   const [noWebgl, setNoWebgl] = useState(false);
@@ -40,24 +42,24 @@ export default function Mill() {
     <section className={noWebgl ? 'mill no-webgl' : 'mill'} id="pressage">
       <div className="mill-stage" ref={stage}>
         <div className="canvas-box">
-          <canvas id="scene" ref={canvas} aria-label="Animation 3D des étapes de fabrication de l'huile d'olive"></canvas>
+          <canvas id="scene" ref={canvas} aria-label={m.canvas}></canvas>
           <div className="grain" aria-hidden="true"></div>
-          <div className="scene-fallback"><p>L'animation 3D n'est pas disponible sur cet appareil.<br />Les cinq étapes sont décrites ci-dessous.</p></div>
+          <div className="scene-fallback"><p>{m.fallback[0]}<br />{m.fallback[1]}</p></div>
           <div className="hud" aria-hidden="true">
-            {STEPS.map((_, i) => <span key={i}><i ref={el => { hud.current[i] = el; }}></i></span>)}
+            {m.steps.map((_, i) => <span key={i}><i ref={el => { hud.current[i] = el; }}></i></span>)}
           </div>
         </div>
         <div className="steps">
           <SectionHeading
             className="mill-intro"
-            eyebrow="Du fruit à la bouteille"
-            title="Cinq étapes pour une huile extra vierge"
-            lead="Suivez le voyage d'une olive de notre verger jusqu'à la bouteille. Une extraction mécanique, à froid, sans aucun ajout."
+            eyebrow={m.eyebrow}
+            title={m.title}
+            lead={m.lead}
           >
-            <span className="hint">Faites défiler</span>
+            <span className="hint">{m.hint}</span>
           </SectionHeading>
-          {STEPS.map((s, i) => (
-            <div className={i === active ? 'step on' : 'step'} key={s.title} ref={el => { steps.current[i] = el; }}>
+          {m.steps.map((s, i) => (
+            <div className={i === active ? 'step on' : 'step'} key={i} ref={el => { steps.current[i] = el; }}>
               <div className="step-card">
                 <div className="num">{String(i + 1).padStart(2, '0')}</div><h3>{s.title}</h3>
                 <p>{s.text}</p>
