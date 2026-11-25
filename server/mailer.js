@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
-/* Mail sending through the OVH mailbox info@thibica.com (SMTP).
-   All credentials come from environment variables, see .env.example. */
+/* Mail sending through Resend's SMTP relay (domain thibica.com verified in Resend), so it never
+   depends on the mailbox password. All credentials come from environment variables, see .env.example. */
 
 const LIMITS = { type: 60, name: 120, email: 200, phone: 40, format: 80, qty: 10, message: 4000 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,6 +22,8 @@ export function readConfig(env = process.env) {
     },
     from: env.MAIL_FROM || `Domaine Thibica <${env.SMTP_USER}>`,
     to: env.MAIL_TO || env.SMTP_USER,
+    // Where customers' replies to the acknowledgement go (MAIL_FROM may be a no-reply address).
+    replyTo: env.MAIL_REPLY_TO || env.MAIL_TO || undefined,
     confirm: env.MAIL_SEND_CONFIRMATION === 'true'
   };
 }
@@ -67,6 +69,7 @@ ${rows.map(([k, v]) => `<tr><td style="color:#4a5541"><b>${esc(k)}</b></td><td>$
     await transporter.sendMail({
       from: cfg.from,
       to: d.email,
+      replyTo: cfg.replyTo,
       subject: 'Nous avons bien reçu votre demande · Domaine Thibica',
       text: `Bonjour ${d.name},\n\nMerci pour votre demande. Nous revenons vers vous rapidement avec les prix et les délais.\n\nRécapitulatif :\n${text}\n\nDomaine Thibica\ninfo@thibica.com`
     }).catch(() => {}); // the confirmation is a courtesy, the order itself already went through
