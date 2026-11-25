@@ -7,3 +7,4 @@ hero_video_original.mp4
 *.docx
 .env
 .env*.local
+.ssr

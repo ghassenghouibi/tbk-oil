@@ -1,0 +1,12 @@
+{
+  "name": "Domaine Thibica",
+  "short_name": "Thibica",
+  "lang": "fr",
+  "icons": [
+    { "src": "/img/logo-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#2F3D25",
+  "background_color": "#F3ECDD",
+  "display": "browser"
+}

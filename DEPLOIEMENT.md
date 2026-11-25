@@ -44,6 +44,18 @@ qui font fonctionner la boîte mail OVH.
 
 ## Nom de domaine
 
-Pour servir le site sur thibica.com : `vercel domains add thibica.com`, puis suivez les
-enregistrements DNS indiqués (à créer dans la zone DNS OVH). **Ne touchez pas aux enregistrements MX**,
-ce sont eux qui font fonctionner la boîte mail OVH.
+L'adresse officielle du site est **https://www.thibica.com** : c'est elle qui figure dans la balise canonique,
+le sitemap, robots.txt, les balises Open Graph et les données structurées (`index.html`, `public/`).
+Sur Vercel, `thibica.com` redirige en 308 vers `www.thibica.com`, et `thibica.vercel.app` aussi (`vercel.json`),
+pour qu'une seule adresse soit indexée. Si le domaine principal change un jour, changez-le à tous ces endroits.
+
+Pour ajouter un domaine : `vercel domains add <domaine>`, puis suivez les enregistrements DNS indiqués
+(à créer dans la zone DNS OVH). **Ne touchez pas aux enregistrements MX**, ce sont eux qui font fonctionner
+la boîte mail OVH.
+
+## Référencement (SEO)
+
+Le site est une seule page React, **pré-rendue au build** (`npm run build` lance `scripts/prerender.js`) :
+`dist/index.html` contient déjà tout le texte, que les moteurs de recherche et les aperçus de partage lisent
+sans exécuter de JavaScript. Après la mise en ligne, déclarez `https://www.thibica.com/sitemap.xml` dans
+Google Search Console et Bing Webmaster Tools.

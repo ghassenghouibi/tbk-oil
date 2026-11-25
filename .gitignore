@@ -9,3 +9,4 @@ hero_video_original.mp4
 
 .env*
 !.env.example
+.ssr
